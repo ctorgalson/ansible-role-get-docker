@@ -1,0 +1,22 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: "Uninstall docker"
+      apt:
+        name:
+          - "docker-ce"
+          - "docker-ce-cli"
+          - "docker-ce-rootless-extras"
+          - "docker-compose-plugin"
+          - "docker-scan-plugin"
+        state: absent
+
+    - name: "Remove /etc/apt/sources.list.d/docker.list"
+      file:
+        path: "/etc/apt/sources.list.d/docker.list"
+        state: absent
+
+    # There doesn't seem to be any gpg key associated with docker (i.e. running
+    # apt-key list shows only keys from *@ubuntu.com.
