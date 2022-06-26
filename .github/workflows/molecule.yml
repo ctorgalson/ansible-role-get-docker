@@ -4,12 +4,14 @@ name: Molecule Test
 on:
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
   molecule:
     runs-on: ubuntu-latest
+    env:
+      ANSIBLE_ASYNC_DIR: "/tmp/.ansible_async"
     strategy:
       fail-fast: false
       matrix:
