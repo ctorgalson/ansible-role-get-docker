@@ -1,2 +1,6 @@
 ---
 # vars file for get_docker
+
+gd__bin_path: "/usr/bin/docker"
+gd__get_docker_com: "https://get.docker.com"
+gd__install_sh_url: "https://raw.githubusercontent.com/docker/docker-install/master/install.sh"
