@@ -10,6 +10,6 @@
 - name: "get_docker | Include run-get-docker-sh.yml."
   ansible.builtin.include_tasks: "run-get-docker-sh.yml"
   when: >
-    rg__bin_path is defined or
+    not rg__bin_path.stat.exists or
     gt__script_commit_sha is defined or
     gd__force_install_script

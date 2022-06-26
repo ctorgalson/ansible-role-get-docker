@@ -55,7 +55,7 @@
   #     3. we are forcing install.
   when: >
     fc__install_script_diff_ok and
-    (rg__bin_path is defined or
+    (not rg__bin_path.stat.exists or
      gt__script_commit_sha in rg__install_script_diff.stdout or
      gt__force_install_script)
 
