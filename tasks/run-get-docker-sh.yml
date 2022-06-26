@@ -1,0 +1,67 @@
+---
+# tasks file for get_docker
+
+- name: "get_docker | Create a temp directory."
+  ansible.builtin.tempfile:
+    state: "directory"
+    prefix: "get_docker"
+  register: rg__temp_dir
+  changed_when: false
+
+- name: "get_docker | Download the install.sh script from github.com."
+  ansible.builtin.get_url:
+    url: "{{ gd__install_sh_url }}"
+    dest: "{{ rg__temp_dir.path }}/install.sh"
+  changed_when: false
+
+- name: "get_docker | Download the get.docker.com script."
+  ansible.builtin.get_url:
+    url: "{{ gd__get_docker_com }}"
+    dest: "{{ rg__temp_dir.path }}/get-docker.sh"
+    mode: "a+x"
+  changed_when: false
+
+- name: "get_docker | Compare the github.com and get.docker.com versions."
+  # We're getting a diff of the changes only, then isolating, trimming white-
+  # space from, and saving only the right half.
+  ansible.builtin.shell: >
+    diff --side-by-side --suppress-common-lines ./install.sh ./get-docker.sh |
+    cut -d'|' -f2 |
+    xargs
+  args:
+    chdir: "{{ rg__temp_dir.path }}"
+  register: rg__install_script_diff
+  changed_when: false
+
+- name: "get_docker | Set a fact about the sha hash in the get.docker.com script."
+  ansible.builtin.set_fact:
+    fc__install_script_diff_ok: >
+      {{ rg__install_script_diff is defined and rg__install_script_diff.stdout|regex_search('^SCRIPT_COMMIT_SHA=[a-f0-9]+$') != '' }}
+
+- name: "get_docker | Run the get.docker.com script."
+  ansible.builtin.shell: "sh {{ rg__temp_dir.path }}/get-docker.sh"
+  # This is a complex condition allowing for three different strategies (we
+  # might be forcing install with gd__force_install_script, we might be check-
+  # ing the get.docker.com scripts with gd__script__commit_sha, or we may only
+  # be checking to see that docker is not yet installed).
+  #
+  # The following check checks that:
+  #
+  # - we succesfully diffed the scripts and only the commit hash differed, and
+  #   one of three other conditions is true:
+  #
+  #     1. docker is not yet installed, or
+  #     2. we found a SPECIFIC commit hash in the get.docker.com script, or
+  #     3. we are forcing install.
+  when: >
+    fc__install_script_diff_ok and
+    (rg__bin_path is defined or
+     gt__script_commit_sha in rg__install_script_diff.stdout or
+     gt__force_install_script)
+
+- name: "get_docker | Remove the temp directory."
+  ansible.builtin.file:
+    path: "{{ rg__temp_dir.path }}"
+    state: "absent"
+  register: rg__temp_dir
+  changed_when: false
