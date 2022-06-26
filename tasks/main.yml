@@ -1,2 +1,15 @@
 ---
 # tasks file for get_docker
+
+- name: "get_docker | Check if Docker is installed."
+  ansible.builtin.stat:
+    path: "{{ gd__bin_path }}"
+  register: rg__bin_path
+  changed_when: false
+
+- name: "get_docker | Include run-get-docker-sh.yml."
+  ansible.builtin.include_tasks: "run-get-docker-sh.yml"
+  when: >
+    rg__bin_path is defined or
+    gt__script_commit_sha is defined or
+    gd__force_install_script
