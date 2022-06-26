@@ -4,8 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-ansible-core = "*"
-ansible-lint = "*"
+pytest-testinfra = "*"
+yamllint = "*"
+flake8 = "*"
+setuptools = "*"
 
 [dev-packages]
 
@@ -13,4 +15,4 @@ ansible-lint = "*"
 python_version = "3.8"
 
 [packages.molecule]
-extras = [ "docker",]
+extras = [ "ansible", "docker",]
