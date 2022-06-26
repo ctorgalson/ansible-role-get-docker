@@ -2,10 +2,17 @@
 dependency:
   name: galaxy
 driver:
-  name: delegated
+  name: docker
 platforms:
   - name: instance
+    image: geerlingguy/docker-${MOLECULE_IMAGE:-ubuntu2204}-ansible
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
 provisioner:
   name: ansible
 verifier:
   name: ansible
+  directory: ./tests/
