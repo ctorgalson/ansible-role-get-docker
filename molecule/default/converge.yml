@@ -5,4 +5,4 @@
   tasks:
     - name: "Include ctorgalson.get_docker"
       ansible.builtin.include_role:
-        name: "ctorgalson.get_docker"
+        name: "ansible-role-get-docker"
