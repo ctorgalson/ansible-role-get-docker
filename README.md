@@ -1,4 +1,6 @@
-# ctorgalson.get_docker (ctorgalson/ansible-role-get-docker)
+# ctorgalson.get_docker
+
+**(ctorgalson/ansible-role-get-docker)**
 
 This role retrieves and runs the script from https://get.docker.com. It offers
 three install strategies for different situations:
