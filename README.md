@@ -1,5 +1,7 @@
 # ctorgalson.get_docker
 
+[![Molecule Test](https://github.com/ctorgalson/ansible-role-get-docker/actions/workflows/molecule.yml/badge.svg)](https://github.com/ctorgalson/ansible-role-get-docker/actions/workflows/molecule.yml)
+
 **(ctorgalson/ansible-role-get-docker)**
 
 This role retrieves and runs the script from https://get.docker.com. It offers
