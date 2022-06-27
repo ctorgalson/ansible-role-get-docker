@@ -4,7 +4,48 @@
 - name: Verify
   hosts: all
   gather_facts: false
+
+  # In Molecule containers, the docker service will run, but it needs to be
+  # restarted. But using ansible.builtin.service to send a restart always
+  # results in the message "docker.service: Start request repeated too quickly."
+  #
+  # So, instead, we stop the service, wait a few seconds, then start the service
+  # again (5 seconds seems reliable, but 3 is too short).
+  pre_tasks:
+    - name: "get_docker | Stop the docker service."
+      ansible.builtin.service:
+        name: "docker"
+        state: "stopped"
+
+    - name: "get_docker | Wait a bit."
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: "get_docker | Start the docker service."
+      ansible.builtin.service:
+        name: "docker"
+        state: "started"
+
   tasks:
-  - name: Example assertion
-    ansible.builtin.assert:
-      that: true
+    - name: "get_docker | Test that 'docker' command is installed and working."
+      block:
+        - name: "get_docker | Get docker version."
+          command: "docker --version"
+          register: rg__docker_version
+
+        - name: "get_docker | Verify 'docker' command functions."
+          assert:
+            that: "'Docker version' in rg__docker_version.stdout"
+            fail_msg: "Running 'docker --version' produced no output or unexpected output."
+
+    - name: "get_docker | Test that 'docker' service is functional."
+      block:
+        - name: "get_docker | Run 'hello-world' with Docker."
+          command: "docker run hello-world"
+          register: rg__docker_run_hello_world
+
+        - name: "get_docker | Verify 'docker' service functions."
+          assert:
+            that: >
+              'This message shows that your installation appears to be working correctly.'
+              in rg__docker_run_hello_world.stdout

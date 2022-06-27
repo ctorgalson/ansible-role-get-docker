@@ -3,8 +3,8 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: "Uninstall docker"
-      apt:
+    - name: "Uninstall Docker packages if they exist."
+      ansible.builtin.apt:
         name:
           - "docker-ce"
           - "docker-ce-cli"
@@ -13,10 +13,28 @@
           - "docker-scan-plugin"
         state: absent
 
-    - name: "Remove /etc/apt/sources.list.d/docker.list"
-      file:
+    - name: "Remove /etc/docker/key.json if it exists."
+      ansible.builtin.file:
+        path: "/etc/docker/key.json"
+        state: absent
+
+    - name: "Remove /etc/apt/sources.list.d/docker.list if it exists."
+      ansible.builtin.file:
         path: "/etc/apt/sources.list.d/docker.list"
         state: absent
 
     # There doesn't seem to be any gpg key associated with docker (i.e. running
     # apt-key list shows only keys from *@ubuntu.com.
+
+    - name: "Ensure /etc/docker exists."
+      file:
+        path: "/etc/docker"
+        state: directory
+
+    - name: "Use the vfs storage driver in the Molecule context."
+      ansible.builtin.copy:
+        content: |
+          {
+              "storage-driver": "vfs"
+          }
+        dest: "/etc/docker/daemon.json"
